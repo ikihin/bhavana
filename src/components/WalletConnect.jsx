@@ -24,17 +24,15 @@ export default function WalletConnect({ address, setAddress, onConnected }) {
 
   if (address) {
     return (
-      <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-        <div className="flex-1 text-left">
-          <p className="text-xs text-green-700 font-medium">Connected</p>
-          <p className="text-sm text-gray-700 font-mono truncate max-w-[200px] sm:max-w-[300px]">
-            {address}
-          </p>
+      <div className="flex items-center gap-3 bg-green-500/5 border border-green-500/20 rounded-xl px-4 py-3">
+        <div className="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-400/50" />
+        <div className="flex-1 text-left min-w-0">
+          <p className="text-[10px] text-green-400 font-medium uppercase tracking-wider">Connected</p>
+          <p className="text-xs text-gray-300 font-mono truncate mt-0.5">{address}</p>
         </div>
         <button
           onClick={handleDisconnect}
-          className="text-sm text-red-600 hover:text-red-800 font-medium cursor-pointer"
+          className="text-xs text-red-400 hover:text-red-300 font-medium cursor-pointer shrink-0 transition-colors"
         >
           Disconnect
         </button>
@@ -46,9 +44,9 @@ export default function WalletConnect({ address, setAddress, onConnected }) {
     <button
       onClick={handleConnect}
       disabled={loading}
-      className="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold rounded-xl transition-colors cursor-pointer"
+      className="w-full py-3.5 bg-[#c41e2a] hover:bg-[#a01823] disabled:bg-gray-800 disabled:text-gray-500 text-white font-semibold rounded-xl transition-all cursor-pointer text-sm tracking-wide"
     >
-      {loading ? 'Connecting...' : 'Connect Wallet'}
+      {loading ? 'Connecting...' : 'CONNECT WALLET'}
     </button>
   )
 }
