@@ -23,18 +23,30 @@ export function getKit() {
   return kit
 }
 
-export async function connectWallet() {
-  const walletKit = getKit()
-  await walletKit.openModal({
-    onWalletSelected: async (option) => {
-      walletKit.setWallet(option.id)
-    },
+export function connectWallet() {
+  return new Promise((resolve, reject) => {
+    const walletKit = getKit()
+    walletKit.openModal({
+      onWalletSelected: async (option) => {
+        try {
+          walletKit.setWallet(option.id)
+          const { address } = await walletKit.getAddress()
+          resolve(address)
+        } catch (err) {
+          reject(err)
+        }
+      },
+      onClosed: (err) => {
+        reject(err || new Error('Modal closed'))
+      },
+    })
   })
-  const { address } = await walletKit.getAddress()
-  return address
 }
 
 export async function disconnectWallet() {
+  if (kit) {
+    await kit.disconnect()
+  }
   kit = null
 }
 
@@ -83,13 +95,18 @@ export async function sendPayment(destinationAddress, amount) {
     .setTimeout(30)
     .build()
 
-  const { signedTxXdr } = await walletKit.signTransaction(transaction.toXDR())
+  const xdr = transaction.toXDR()
 
-  const tx = StellarSdk.TransactionBuilder.fromXDR(
+  const { signedTxXdr } = await walletKit.signTransaction(xdr, {
+    networkPassphrase: StellarSdk.Networks.TESTNET,
+    address: sourceAddress,
+  })
+
+  const signedTx = StellarSdk.TransactionBuilder.fromXDR(
     signedTxXdr,
     StellarSdk.Networks.TESTNET
   )
 
-  const result = await server.submitTransaction(tx)
+  const result = await server.submitTransaction(signedTx)
   return result
 }
