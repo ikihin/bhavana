@@ -1,93 +1,109 @@
-# Bhavana — Real World Asset Tokenization on Stellar
+# Bhavana — Fractional Indonesian Property Investment on Solana
 
-Bhavana is a decentralized application (dApp) built on the Stellar blockchain that enables fractional property investment through tokenization. This Level 1 submission demonstrates core Stellar wallet integration, balance management, and XLM transactions on the testnet.
+Bhavana democratizes property investment for 200M+ Indonesians locked out of real estate. Buy fractional ownership of kos-kosan (boarding houses) and apartments starting from Rp 150.000 (~$10), and earn rental yield distributed on-chain.
+
+**Built with Claude Code + solana.new skills for the Superteam Agentic Engineering Grant.**
 
 ## Features
 
-- **Wallet Connection** — Connect/disconnect via Stellar Wallets Kit (supports Freighter, xBull, Albedo, and more)
-- **Balance Display** — Real-time XLM balance fetching from Stellar Testnet
-- **Friendbot Funding** — One-click testnet account funding
-- **Send XLM** — Transfer XLM to any Stellar testnet address with full transaction feedback
-- **Transaction Feedback** — Success/failure states with transaction hash and explorer link
+- **Anchor Smart Contract** — `initialize_property`, `buy_shares`, `distribute_yield` instructions with supply caps, SOL vault management, and pro-rata yield distribution
+- **3 Real Indonesian Properties** — Kos Malioboro (Yogyakarta), Apartemen Sudirman (Jakarta), Kos Dago (Bandung) with real market yields (7.8-9.2%)
+- **Phantom Wallet Integration** — Connect, buy shares, view portfolio
+- **Rupiah-First UI** — All prices displayed in IDR with SOL equivalent
+- **Portfolio Dashboard** — Track holdings, estimated monthly yield, total investment value
+- **Yield Distribution Demo** — Admin simulates rental income distribution to token holders
+- **Full Transaction States** — Idle → Pending → Confirmed/Error with Indonesian error messages
 
 ## Tech Stack
 
-- React 19 + Vite
-- Tailwind CSS v4
-- Stellar SDK (`@stellar/stellar-sdk`)
-- Stellar Wallets Kit (`@creit.tech/stellar-wallets-kit`)
-- Stellar Testnet (Horizon)
+- **Smart Contract**: Anchor 0.30 (Rust) on Solana Devnet
+- **Frontend**: React 19 + Vite + Tailwind CSS v4
+- **Wallet**: @solana/wallet-adapter (Phantom)
+- **Tokens**: SPL Token (0-decimal, 1 token = 1 share)
 
-## Prerequisites
+## Architecture
 
-1. Install the [Freighter Wallet](https://www.freighter.app/) browser extension
-2. Create a Freighter account
-3. Switch Freighter to **Testnet** (Settings → Network → Testnet)
+```
+anchor/programs/bhavana/src/lib.rs    ← Anchor program (394 lines)
+├── PropertyAccount PDA: seeds = ["property", name]
+├── Mint PDA: seeds = ["mint", name]
+├── Vault PDA: seeds = ["vault", name]
+│
+src/
+├── components/
+│   ├── Navbar.tsx              ← Navigation + WalletMultiButton
+│   ├── PropertyCard.tsx        ← Property listing with IDR pricing
+│   ├── BuyModal.tsx            ← Purchase flow with state machine
+│   ├── PortfolioDashboard.tsx  ← Holdings + yield summary
+│   ├── YieldPanel.tsx          ← Admin yield distribution demo
+│   └── Logo.tsx                ← Reusable logo component
+├── hooks/
+│   ├── useProperties.ts        ← Fetch PropertyAccount PDAs
+│   ├── useBuyShares.ts         ← Call buy_shares instruction
+│   ├── usePortfolio.ts         ← User's SPL token balances
+│   └── useDistributeYield.ts   ← Admin yield distribution
+├── lib/
+│   ├── constants.ts            ← Program ID, RPC, property data, formatIDR()
+│   ├── program.ts              ← Anchor program helpers
+│   ├── WalletProvider.tsx      ← Solana wallet adapter setup
+│   └── polyfills.ts            ← Buffer polyfill for browser
+└── pages/
+    ├── HomePage.tsx            ← Hero + stats + property preview
+    ├── PropertiesPage.tsx      ← Full property grid
+    └── PortfolioPage.tsx       ← Dashboard + yield panel
+```
 
-## Setup Instructions
+## Quick Start
+
+### Frontend
 
 ```bash
-# Clone the repository
 git clone https://github.com/ikihin/bhavana.git
 cd bhavana
-
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open [http://localhost:5173](http://localhost:5173) — connect Phantom wallet (set to Devnet).
 
-## How to Use
+### Smart Contract (requires Rust + Anchor CLI)
 
-1. Click **Connect Wallet** to connect your Freighter wallet
-2. If your account is new, click **Fund with Friendbot** to get 10,000 testnet XLM
-3. Enter a destination address and amount to send XLM
-4. Confirm the transaction in Freighter
-5. View the transaction hash and click the explorer link to verify
-
-## Screenshots
-
-### Wallet Connected State
-![Wallet Connected](./screenshots/wallet-connected.png)
-
-### Balance Displayed
-![Balance Display](./screenshots/balance-display.png)
-
-### Successful Transaction
-![Transaction Success](./screenshots/transaction-success.png)
-
-### Transaction Result
-![Transaction Result](./screenshots/transaction-result.png)
-
-## Project Structure
-
-```
-bhavana/
-├── src/
-│   ├── components/
-│   │   ├── WalletConnect.jsx    # Wallet connect/disconnect
-│   │   ├── BalanceDisplay.jsx   # XLM balance & friendbot
-│   │   └── SendPayment.jsx     # Send XLM transaction
-│   ├── lib/
-│   │   └── stellar.js          # Stellar SDK integration
-│   ├── App.jsx                  # Main application
-│   ├── main.jsx                 # Entry point
-│   └── index.css                # Tailwind styles
-├── public/
-│   └── favicon.svg
-├── index.html
-├── vite.config.js
-└── package.json
+```bash
+cd anchor
+npm install
+anchor build
+anchor deploy --provider.cluster devnet
+npx ts-node migrations/seed-properties.ts
 ```
 
-## Roadmap
+See `anchor/SETUP.md` for full toolchain installation.
 
-- **Level 2** — Smart contract escrow for property token purchases + multi-wallet integration
-- **Level 3** — Production dApp with CI/CD, tests, and mobile responsive UI
-- **Level 4+** — Property listing marketplace, fractional ownership, profit distribution
+## Property Data (Devnet)
+
+| Property | Location | Shares | Price/Share | Annual Yield |
+|----------|----------|--------|-------------|--------------|
+| Kos Putri Malioboro | Yogyakarta | 1,000 | Rp 150.000 | 9.2% |
+| Apartemen Sudirman Park | Jakarta Pusat | 500 | Rp 500.000 | 7.8% |
+| Kos Premium Dago | Bandung | 800 | Rp 200.000 | 8.5% |
+
+## How It Works
+
+1. **Admin initializes property** → Creates PDA + SPL mint + SOL vault
+2. **Investor buys shares** → SOL transferred to vault, SPL tokens minted to buyer's ATA
+3. **Admin distributes yield** → Vault SOL sent pro-rata to all token holders based on share ownership
+
+## AI-Assisted Development
+
+This project was built entirely using Claude Code with solana.new skills:
+- `/competitive-landscape` — Market analysis (Parcl, RealT, Lofty comparison)
+- `/roast-my-product` — Product critique and MVP scoping
+- `/build-with-claude` — Anchor program, integration hooks, full UI components
+
+Session transcript: [`claude-session.jsonl`](./claude-session.jsonl)
+
+## Disclaimer
+
+⚠️ This is a proof of concept on Solana Devnet. Not a real investment product. No real properties are tokenized. For demonstration and grant submission purposes only.
 
 ## License
 
