@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+body {
+  background-color: #0F1923;
+  color: #E1F5EE;
+}
+
+/* Solana wallet adapter overrides */
+.wallet-adapter-button {
+  font-family: inherit !important;
+}
+
+.wallet-adapter-modal-wrapper {
+  background-color: #162230 !important;
+}
+
+.wallet-adapter-modal-button-close {
+  background-color: #1D3A2F !important;
+}
